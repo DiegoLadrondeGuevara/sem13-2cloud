@@ -4,6 +4,20 @@ Este proyecto implementa el ejercicio propuesto del curso **CS2032 Cloud Computi
 
 La tabla usa `tenant_id` como clave de partición y `archivo_id` como clave de ordenación. Los códigos quedan en `archivo_datos.codigo_curso` y `archivo_datos.codigo_alumno`, siguiendo la estructura `archivo_datos` de la clase. Los valores de prueba son **CS2032** y **202410083**. No están fijos en el código: se leen de cada objeto S3. Las Lambdas usan el rol existente `arn:aws:iam::904208419583:role/LabRole`, porque el laboratorio no permite crear un rol IAM nuevo. Ese rol debe permitir `s3:GetObject`, `sns:Publish`, `dynamodb:PutItem` y escritura de logs en CloudWatch.
 
+## Diseño de la solución
+
+```mermaid
+flowchart LR
+    S3["S3: universidades/UTEC/*.txt<br/>metadata codigo-curso y codigo-alumno"] -->|ObjectCreated| L1["LeerMetadataArchivo"]
+    L1 -->|HeadObject lee metadata| S3
+    L1 -->|JSON y atributo tenant_id| SNS["TemaNuevoArchivo-dev"]
+    SNS -->|Filtro tenant_id = UTEC| Correo["Correo UTEC"]
+    SNS -->|Filtro tenant_id = UTEC| L2["CrearArchivo_UTEC"]
+    L2 -->|PutItem| DDB["t_archivos_UTEC<br/>archivo_datos.codigo_curso<br/>archivo_datos.codigo_alumno"]
+```
+
+Para `UNIV2`, la primera Lambda publica el mensaje con `tenant_id = UNIV2`; los filtros de SNS impiden que llegue a la segunda Lambda o al correo.
+
 ## Despliegue desde EC2
 
 1. En AWS, usa una instancia EC2 en **us-east-1** con credenciales temporales válidas del laboratorio en la cuenta **904208419583**. La sesión puede aparecer como `assumed-role/voclabs/` o `assumed-role/LabRole/`. La ARN de `LabRole` por sí sola no entrega credenciales. Instala Git, AWS CLI, Node.js 20 o 22 y npm. No guardes claves AWS en el repositorio.
