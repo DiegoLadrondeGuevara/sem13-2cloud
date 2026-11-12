@@ -10,7 +10,3 @@ if [[ "$actual_account" != "$expected_account" ]]; then
   printf 'ERROR: la cuenta debe ser %s. No se desplegara nada.\n' "$expected_account" >&2
   exit 1
 fi
-if [[ "$actual_arn" != arn:aws:sts::904208419583:assumed-role/LabRole/* ]]; then
-  printf 'ERROR: la instancia EC2 debe usar LabRole. No se desplegara nada.\n' >&2
-  exit 1
-fi

@@ -6,7 +6,7 @@ La tabla usa `tenant_id` como clave de partición y `archivo_id` como clave de o
 
 ## Despliegue desde EC2
 
-1. En AWS, usa una instancia EC2 en **us-east-1** con el perfil de instancia que contiene `LabRole` de la cuenta **904208419583**. La ARN del rol por sí sola no entrega credenciales; el rol debe estar asociado a la instancia. Instala Git, AWS CLI, Node.js 20 o 22 y npm. No guardes claves AWS en el repositorio.
+1. En AWS, usa una instancia EC2 en **us-east-1** con credenciales temporales válidas del laboratorio en la cuenta **904208419583**. La sesión puede aparecer como `assumed-role/voclabs/` o `assumed-role/LabRole/`. La ARN de `LabRole` por sí sola no entrega credenciales. Instala Git, AWS CLI, Node.js 20 o 22 y npm. No guardes claves AWS en el repositorio.
 2. Comprueba los programas y la identidad:
 
    ```bash
@@ -17,7 +17,7 @@ La tabla usa `tenant_id` como clave de partición y `archivo_id` como clave de o
    aws sts get-caller-identity
    ```
 
-   El `Account` debe ser `904208419583` y el ARN debe incluir `assumed-role/LabRole/`.
+   El `Account` debe ser `904208419583`. El script de despliegue comprueba esta cuenta y también verifica que el bucket generado por Serverless incluya el mismo número de cuenta.
 
 3. Descarga el proyecto y ejecuta la comprobación:
 
