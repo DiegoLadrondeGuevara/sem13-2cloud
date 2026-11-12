@@ -1,7 +1,5 @@
 service: sem13-2cloud
 frameworkVersion: '3'
-org: diegoladrondeguevara
-app: sem13-2cloud
 
 custom:
   bucketName: sem13-2cloud-${sls:stage}-${aws:accountId}

@@ -27,7 +27,7 @@ La tabla usa `tenant_id` como clave de partición y `archivo_id` como clave de o
    bash scripts/check-aws.sh
    ```
 
-4. Serverless Framework usa la organización `diegoladrondeguevara` y la aplicación `sem13-2cloud`. Si pide iniciar sesión, ejecuta `npx serverless login` después de `npm ci` y abre el enlace que muestre en tu navegador. Antes de desplegar, verifica que cualquier proveedor AWS configurado en esa organización apunte a la cuenta **904208419583**.
+4. El despliegue usa las credenciales AWS temporales de la EC2. No requiere iniciar sesión en Serverless Dashboard: el nombre de organización proporcionado no se encontró allí (`Tenant not found`). Confirma que `aws sts get-caller-identity` sigue mostrando la cuenta **904208419583** antes de desplegar.
 5. Despliega:
 
    ```bash
