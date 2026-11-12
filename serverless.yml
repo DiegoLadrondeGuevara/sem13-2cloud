@@ -1,0 +1,112 @@
+service: sem13-2cloud
+frameworkVersion: '3'
+org: diegoladrondeguevara
+app: sem13-2cloud
+
+custom:
+  bucketName: sem13-2cloud-${sls:stage}-${aws:accountId}
+  topicName: TemaNuevoArchivo-${sls:stage}
+
+package:
+  patterns:
+    - '!node_modules/**'
+    - '!tests/**'
+    - '!scripts/**'
+    - '!ejemplos/**'
+    - '!README.md'
+    - '!package.json'
+    - '!package-lock.json'
+    - '!**/__pycache__/**'
+    - '!**/*.pyc'
+
+provider:
+  name: aws
+  region: us-east-1
+  stage: dev
+  runtime: python3.11
+  logRetentionInDays: 7
+  environment:
+    TOPIC_ARN: !Ref NuevoArchivoTopic
+    TABLE_NAME: !Ref ArchivosUTECTable
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action: s3:GetObject
+          Resource: arn:aws:s3:::${self:custom.bucketName}/universidades/*
+        - Effect: Allow
+          Action: sns:Publish
+          Resource: !Ref NuevoArchivoTopic
+        - Effect: Allow
+          Action: dynamodb:PutItem
+          Resource: !GetAtt ArchivosUTECTable.Arn
+
+functions:
+  leerMetadataArchivo:
+    name: LeerMetadataArchivo-${sls:stage}
+    handler: src.leer_metadata.lambda_handler
+    timeout: 15
+    events:
+      - s3:
+          bucket: ${self:custom.bucketName}
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: universidades/
+            - suffix: .txt
+
+  crearArchivoUTEC:
+    name: CrearArchivo_UTEC-${sls:stage}
+    handler: src.crear_archivo.lambda_handler
+    timeout: 15
+    events:
+      - sns:
+          arn: !Ref NuevoArchivoTopic
+          topicName: ${self:custom.topicName}
+          filterPolicy:
+            tenant_id:
+              - UTEC
+
+resources:
+  Resources:
+    NuevoArchivoTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: ${self:custom.topicName}
+
+    NotificacionCorreoUTEC:
+      Type: AWS::SNS::Subscription
+      Properties:
+        TopicArn: !Ref NuevoArchivoTopic
+        Protocol: email
+        Endpoint: ldeguevaradiego@gmail.com
+        FilterPolicyScope: MessageAttributes
+        FilterPolicy:
+          tenant_id:
+            - UTEC
+
+    ArchivosUTECTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: t_archivos_UTEC
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: tenant_id
+            AttributeType: S
+          - AttributeName: archivo_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: tenant_id
+            KeyType: HASH
+          - AttributeName: archivo_id
+            KeyType: RANGE
+
+  Outputs:
+    BucketName:
+      Description: Bucket para las pruebas del taller
+      Value: ${self:custom.bucketName}
+    TopicArn:
+      Description: Tema SNS Nuevo Archivo
+      Value: !Ref NuevoArchivoTopic
+    TableName:
+      Description: Tabla DynamoDB de UTEC
+      Value: !Ref ArchivosUTECTable

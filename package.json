@@ -1,0 +1,14 @@
+{
+  "name": "sem13-2cloud",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Taller 2 Semana 13: metadata de archivos con S3, Lambda, SNS y DynamoDB",
+  "scripts": {
+    "test": "python -m unittest discover -s tests -v",
+    "package": "serverless package --stage dev --region us-east-1",
+    "deploy": "serverless deploy --stage dev --region us-east-1"
+  },
+  "devDependencies": {
+    "serverless": "3.40.0"
+  }
+}
