@@ -2,7 +2,7 @@
 
 Este proyecto implementa el ejercicio propuesto del curso **CS2032 Cloud Computing** con Serverless Framework **v3.40.0**. Cuando se sube un `.txt` a `universidades/<tenant>/`, S3 invoca `LeerMetadataArchivo`. Esta función consulta `HeadObject` para obtener los metadatos personalizados `codigo-curso` y `codigo-alumno`, además de tamaño y fecha de modificación. Publica el resultado en SNS con el atributo `tenant_id`. SNS entrega solo los mensajes de `UTEC` a `CrearArchivo_UTEC` y a la suscripción de correo. La segunda función guarda el registro en `t_archivos_UTEC`.
 
-La tabla usa `tenant_id` como clave de partición y `archivo_id` como clave de ordenación. Los códigos quedan en `archivo_datos.codigo_curso` y `archivo_datos.codigo_alumno`, siguiendo la estructura `archivo_datos` de la clase. Los valores de prueba son **CS2032** y **202410083**. No están fijos en el código: se leen de cada objeto S3.
+La tabla usa `tenant_id` como clave de partición y `archivo_id` como clave de ordenación. Los códigos quedan en `archivo_datos.codigo_curso` y `archivo_datos.codigo_alumno`, siguiendo la estructura `archivo_datos` de la clase. Los valores de prueba son **CS2032** y **202410083**. No están fijos en el código: se leen de cada objeto S3. Las Lambdas usan el rol existente `arn:aws:iam::904208419583:role/LabRole`, porque el laboratorio no permite crear un rol IAM nuevo. Ese rol debe permitir `s3:GetObject`, `sns:Publish`, `dynamodb:PutItem` y escritura de logs en CloudWatch.
 
 ## Despliegue desde EC2
 

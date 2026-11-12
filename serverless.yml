@@ -27,17 +27,7 @@ provider:
     TOPIC_ARN: !Ref NuevoArchivoTopic
     TABLE_NAME: !Ref ArchivosUTECTable
   iam:
-    role:
-      statements:
-        - Effect: Allow
-          Action: s3:GetObject
-          Resource: arn:aws:s3:::${self:custom.bucketName}/universidades/*
-        - Effect: Allow
-          Action: sns:Publish
-          Resource: !Ref NuevoArchivoTopic
-        - Effect: Allow
-          Action: dynamodb:PutItem
-          Resource: !GetAtt ArchivosUTECTable.Arn
+    role: arn:aws:iam::904208419583:role/LabRole
 
 functions:
   leerMetadataArchivo:
